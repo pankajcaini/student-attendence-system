@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+        * {
+            font-family: "Outfit", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 300px;
+            text-align: center;
+        }
+
+        .header {
+            background: #2575fc;
+            color: white;
+            padding: 20px;
+            font-size: 1.5em;
+        }
+
+        .button-container {
+            padding: 20px;
+        }
+
+        .button-container a {
+            display: block;
+            margin: 10px 0;
+            padding: 15px;
+            background: #6a11cb;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .button-container a:hover {
+            background: #2575fc;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">Login</div>
+        <div class="button-container">
+            <a href="{% url 'student-login' %}">Login as Student</a>
+            <a href="{%  url 'teacher-login' %}">Login as Teacher</a>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+            font-weight: 500;
+            font-style: normal;
+            user-select: none;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+        }
+
+        h3 {
+            text-align: center;
+            color: #333;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .search-box input {
+            width: 50%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background-color: #333;
+            color: #fff;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button.present {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        button.absent {
+            background-color: #f44336;
+            color: white;
+        }
+
+        button.present:hover {
+            background-color: #45a049;
+        }
+
+        button.absent:hover {
+            background-color: #e53935;
+        }
+
+        button.save,
+        button.final-submit {
+            margin-top: 20px;
+            background-color: #008CBA;
+            color: white;
+        }
+
+        button.save:hover,
+        button.final-submit:hover {
+            background-color: #007BB5;
+        }
+
+        .summary {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .summary div {
+            display: inline-block;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+        .tables-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            align-items: flex-start;
+        }
+
+        .tables-container table {
+            width: 45%;
+            margin-top: 0;
+        }
+
+        tr.present {
+            background-color: #e0f7e9;
+        }
+
+        tr.absent {
+            background-color: #f8e0e0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h3>Java Attendance</h3>
+        <h3> {{course}}| {{date}}</h3>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search by student name or roll number">
+        </div>
+
+        <table id="studentTable">
+            <thead>
+                <tr>
+                    <th>Roll Number</th>
+                    <th>Student Name</th>
+                    <th>Present</th>
+                    <th>Absent</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{student.student_id}}</td>
+                    <td>{{student.student_name}}</td>
+                    <td><button class="present" data-studentid="{{student.student_id}}">Present</button></td>
+                    <td><button class="absent" data-studentid="{{student.student_id}}">Absent</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+        <div class="summary">
+            <div>Total Students: <span id="totalStudents">0</span></div>
+            <div>Total Present: <span id="totalPresent">0</span></div>
+            <div>Total Absent: <span id="totalAbsent">0</span></div>
+        </div>
+
+        <div class="tables-container">
+            <table id="presentTable">
+                <thead>
+                    <tr>
+                        <th>Roll Number</th>
+                        <th>Student Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+            <table id="absentTable">
+                <thead>
+                    <tr>
+                        <th>Roll Number</th>
+                        <th>Student Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <input type="hidden" id="lecture-id" value="{{lecture_id}}">
+
+
+        <button class="final-submit" id="finalSubmit">Final Submit</button>
+    </div>
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const attendanceStatus = {}
+            const lecture_id = document.getElementById('lecture-id').value;
+
+            const searchInput = document.getElementById('searchInput');
+            const studentTable = document.getElementById('studentTable').getElementsByTagName('tbody')[0];
+            const total_student = studentTable.getElementsByTagName('tr').length;
+
+            const totalStudentsSpan = document.getElementById('totalStudents');
+            const totalPresentSpan = document.getElementById('totalPresent');
+            const totalAbsentSpan = document.getElementById('totalAbsent');
+
+            const finalSubmitButton = document.getElementById('finalSubmit');
+
+            const presentTable = document.getElementById('presentTable').getElementsByTagName('tbody')[0];
+            const absentTable = document.getElementById('absentTable').getElementsByTagName('tbody')[0];
+
+            const presentButtons = document.querySelectorAll('button.present');
+            const absentButtons = document.querySelectorAll('button.absent');
+
+
+
+            function updateSummary() {
+                const rows = studentTable.getElementsByTagName('tr');
+                let totalStudents = rows.length;
+                let totalPresent = 0;
+                let totalAbsent = 0;
+
+                presentTable.innerHTML = '';
+                absentTable.innerHTML = '';
+
+                for (let i = 0; i < rows.length; i++) {
+                    const rollNumber = rows[i].getElementsByTagName('td')[0].textContent;
+                    const studentName = rows[i].getElementsByTagName('td')[1].textContent;
+                    if (rows[i].classList.contains('present')) {
+                        totalPresent++;
+                        presentTable.innerHTML += `<tr class="present"><td>${rollNumber}</td><td>${studentName}</td></tr>`;
+                    } else if (rows[i].classList.contains('absent')) {
+                        totalAbsent++;
+                        absentTable.innerHTML += `<tr class="absent"><td>${rollNumber}</td><td>${studentName}</td></tr>`;
+                    }
+                }
+                totalStudentsSpan.textContent = totalStudents;
+                totalPresentSpan.textContent = totalPresent;
+                totalAbsentSpan.textContent = totalAbsent;
+            }
+
+
+            presentButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    attendanceStatus[e.target.dataset.studentid] = 'present';
+                    const row = button.closest('tr');
+                    row.classList.add('present');
+                    row.classList.remove('absent');
+                    updateSummary();
+                });
+            });
+
+
+
+            absentButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    attendanceStatus[e.target.dataset.studentid] = 'absent';
+                    const row = button.closest('tr');
+                    row.classList.add('absent');
+                    row.classList.remove('present');
+                    updateSummary();
+                });
+            });
+
+
+
+            searchInput.addEventListener('keyup', () => {
+                const search_term = searchInput.value.toUpperCase();
+                const rows = studentTable.getElementsByTagName('tr');
+
+                for (let i = 0; i < rows.length; i++) {
+                    const rollNumber = rows[i].getElementsByTagName('td')[0].textContent.toUpperCase();
+                    const studentName = rows[i].getElementsByTagName('td')[1].textContent.toUpperCase();
+                    if (rollNumber.startsWith(search_term) || studentName.startsWith(search_term)) {
+                        rows[i].style.display = '';
+                    } else {
+                        rows[i].style.display = 'none';
+                    }
+                }
+            });
+
+
+
+            async function recordAttendance(attendanceStatus) {
+                const response = await fetch('/insert-attendence-status/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ attendance_status: attendanceStatus, lecture_id: lecture_id })
+                });
+
+                const data = await response.json();
+            }
+
+
+
+            finalSubmitButton.addEventListener('click', () => {
+                const status_considered = Object.keys(attendanceStatus).length;
+
+                if (status_considered != total_student) {
+                    alert('All Students not Considered');
+                } else {
+                    window.removeEventListener('beforeunload', handleBeforeUnload);
+                    recordAttendance(attendanceStatus).then(() => {
+                        window.location.href = `/attendence/${lecture_id}/`;
+                    });
+                }
+            });
+
+
+            
+            function handleBeforeUnload(event) {
+                event.preventDefault();
+                event.returnValue = 'Are you sure you want to leave? Your changes might not be saved.';
+            }
+
+            window.addEventListener('beforeunload', handleBeforeUnload);
+            updateSummary();
+        });
+
+    </script>
+</body>
+
+</html>

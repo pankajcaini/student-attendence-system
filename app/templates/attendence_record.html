@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+            font-weight: 500;
+            font-style: normal;
+            user-select: none;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+        }
+
+        h3 {
+            text-align: center;
+            color: #333;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .search-box input {
+            width: 50%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background-color: #333;
+            color: #fff;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+
+
+
+        tr.present {
+            background-color: #e0f7e9;
+        }
+
+        tr.absent {
+            background-color: #f8e0e0;
+        }
+    </style>
+</head>
+
+<body>
+
+
+
+    <div class="container">
+        <h3>{{subject}} | Attendance</h3>
+        <h3>{{course}}| {{date}} </h3>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search by student name or roll number">
+        </div>
+
+        <table id="studentTable">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rec in recs %}
+                <tr class="{{ rec.status }}">
+                    <td>{{ rec.student.student_name }}</td>
+                    <td>{{ rec.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+
+
+
+            const searchInput = document.getElementById('searchInput');
+            const studentTable = document.getElementById('studentTable');
+
+            // Function to apply present/absent classes based on status
+            function applyStatusClasses() {
+                const rows = studentTable.getElementsByTagName('tr');
+                for (let i = 1; i < rows.length; i++) {
+                    const status = rows[i].dataset.status;
+                    if (status === 'present') {
+                        rows[i].classList.add('present');
+                    } else if (status === 'absent') {
+                        rows[i].classList.add('absent');
+                    }
+                }
+            }
+
+            // Call the function to apply classes initially
+            applyStatusClasses();
+
+            // Search functionality
+            searchInput.addEventListener('keyup', () => {
+                const search_term = searchInput.value.toLowerCase();
+
+                const rows = studentTable.getElementsByTagName('tr');
+
+                for (let i = 1; i < rows.length; i++) {
+                    const rollNumber = rows[i].getElementsByTagName('td')[0].textContent.toLowerCase();
+                    const studentName = rows[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+                    if (rollNumber.startsWith(search_term) || studentName.startsWith(search_term)) {
+                        rows[i].style.display = '';
+                    } else {
+                        rows[i].style.display = 'none';
+                    }
+                }
+
+
+            });
+        });
+    </script>
+
+
+</body>
+
+</html>

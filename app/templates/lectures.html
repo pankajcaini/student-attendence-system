@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
+        * {
+            font-family: "Plus Jakarta Sans", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .logout-button {
+            display: flex;
+            align-items: center;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .logout-button i {
+            margin-right: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background-color: #333;
+            color: #fff;
+        }
+
+        th,
+        td {
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        td {
+            cursor: pointer;
+        }
+
+        tr:hover {
+            background-color: cadetblue;
+        }
+
+        .highlight {
+            background-color: rgb(0, 255, 136);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1> {{teacher.name|title }} | {{date}}</h1>
+            <a href="{% url 'teacher-logout' %}" class="logout-button">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <div class="container">
+        <table id="studentTable">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Course</th>
+                    <th>Subject</th>
+                    <th>Room Number</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lecture in lectures %}
+                <tr data-lecture-id="{{lecture.lecture_id}}">
+                    <td>{{lecture.start_time}} - {{lecture.end_time}}</td>
+                    <td>{{lecture.course.short_name}} {{lecture.year}} {{lecture.semester}}</td>
+                    <td>{{lecture.subject.subject_name}}</td>
+                    <td>{{lecture.room_number}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const rows = document.querySelectorAll("#studentTable tbody tr");
+
+            rows.forEach(row => {
+                row.addEventListener("click", () => {
+                    const lectureId = row.getAttribute("data-lecture-id");
+                    window.location.href = `/attendence/${lectureId}`;
+                });
+            });
+
+            sortTableByTime();
+            highlightCurrentTimeRow();
+        });
+
+        function parseTime(timeStr) {
+            const [time, period] = timeStr.split(" ");
+            let [hours, minutes] = time.split(":").map(Number);
+            if (period === "PM" && hours !== 12) {
+                hours += 12;
+            } else if (period === "AM" && hours === 12) {
+                hours = 0;
+            }
+            const date = new Date();
+            date.setHours(hours);
+            date.setMinutes(minutes || 0);
+            date.setSeconds(0);
+            date.setMilliseconds(0);
+            return date;
+        }
+
+        function sortTableByTime() {
+            const table = document.getElementById("studentTable").getElementsByTagName('tbody')[0];
+            const rows = Array.from(table.rows);
+
+            rows.sort((a, b) => {
+                const timeA = a.cells[0].textContent.split(" - ")[0];
+                const timeB = b.cells[0].textContent.split(" - ")[0];
+                return parseTime(timeA) - parseTime(timeB);
+            });
+
+            rows.forEach(row => table.appendChild(row));
+        }
+
+        function highlightCurrentTimeRow() {
+            const rows = document.querySelectorAll("#studentTable tbody tr");
+            const currentTime = new Date();
+
+            rows.forEach(row => {
+                const timeCell = row.cells[0].textContent;
+                const [startTime, endTime] = timeCell.split(" - ");
+                const start = parseTime(startTime);
+                const end = parseTime(endTime);
+                if (currentTime >= start && currentTime < end) {
+                    row.classList.add("highlight");
+                }
+            });
+        }
+    </script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+
+</html>

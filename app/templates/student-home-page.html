@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+
+        * {
+            font-family: "Oswald", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 450;
+            font-style: normal;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #4CAF50;
+            /* Green */
+            padding: 10px 20px;
+            color: white;
+        }
+
+        .navbar .center {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .navbar .right {
+            margin-left: auto;
+        }
+
+        .navbar button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            color: white;
+            background-color: #f44336;
+            /* Red */
+        }
+
+        .navbar button:hover {
+            opacity: 0.8;
+        }
+
+        .container {
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            table-layout: fixed;
+            /* Ensures the table cells are of equal width */
+        }
+
+        tr:hover {
+            cursor: pointer;
+            background-color: #f2f2f2;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            /* Reduce padding to minimize extra space */
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        #table-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div class="center">Student Name: Pankaj</div>
+        <div class="right">
+            <button class="logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Attendance Record</h1>
+
+        <div id="table-wrapper">
+            <table id="studentTable">
+                <thead>
+                    <th>Subject</th>
+                    <th>Total Lecture</th>
+                    <th>Present</th>
+                    <th>Absent</th>
+                    <th>Percentage</th>
+                    <th>Teacher</th>
+                </thead>
+                {% for record in records %}
+                <tr data-lecture-id="{{record.lecture_id}}">
+                    <td>{{record.subject_name}}</td>
+                    <td>{{record.total_lecture}}</td>
+                    <td>{{record.present}}</td>
+                    <td>{{record.absent}}</td>
+                    <td>{{record.percentage}}</td>
+                    <td>{{record.teacher_name|title}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <script>
+       
+        function logout() {
+            window.location.href = '/student-logout/';
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const rows = document.querySelectorAll("#studentTable tbody tr");
+            rows.forEach(row => {
+                row.addEventListener("click", () => {
+                    const lectureId = row.getAttribute("data-lecture-id");
+                    window.location.href = `/student-attendence-record/${lectureId}`;
+                });
+            });
+        });
+    </script>
+
+</body>
+
+</html>
