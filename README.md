@@ -2,6 +2,8 @@
 
 This project is a Django-based student attendance system that provides three panels: one for students, one for teachers, and one for administrators.
 
+<a href="https://www.youtube.com/watch?v=0tnJ_5y5XP8">YouTube Demo Video</a>
+
 ## Technologies Used
 
 - HTML
